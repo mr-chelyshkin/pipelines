@@ -24,7 +24,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Install Task
-        run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /tmp
+        run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
       - name: Terraform Plan
         env:
@@ -36,5 +36,13 @@ jobs:
           TF_VAR_variables_bucket_file:   ${{ secrets.TF_VAR_variables_bucket_file }}
           TF_VAR_variables_bucket_region: ${{ secrets.TF_VAR_variables_bucket_region }}
         run: |
-          /tmp/task tf/install
-          /tmp/task tf/plan
+          export TF_VAR_BACKEND_BUCKET=${{ secrets.TF_VAR_BACKEND_BUCKET }}
+          export TF_VAR_BACKEND_REGION=${{ secrets.TF_VAR_BACKEND_REGION }}
+          export TF_VAR_BACKEND_FILE=${{ secrets.TF_VAR_BACKEND_FILE }}
+          
+          export TF_VAR_variables_bucket_name=${{ secrets.TF_VAR_variables_bucket_name }}
+          export TF_VAR_variables_bucket_file=${{ secrets.TF_VAR_variables_bucket_file }}
+          export TF_VAR_variables_bucket_region=${{ secrets.TF_VAR_variables_bucket_region }}
+          
+          /usr/local/bin/task tf/install
+          /usr/local/bin/task tf/plan
