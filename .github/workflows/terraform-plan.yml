@@ -35,7 +35,12 @@ jobs:
           TF_VAR_variables_bucket_name:   ${{ secrets.TF_VAR_variables_bucket_name }}
           TF_VAR_variables_bucket_file:   ${{ secrets.TF_VAR_variables_bucket_file }}
           TF_VAR_variables_bucket_region: ${{ secrets.TF_VAR_variables_bucket_region }}
-          TF_PROJECT: "netsurf"
         run: |
           /usr/local/bin/task tf/install
-          /usr/local/bin/task tf/plan
+          for dir in ./provisioners/*/; do
+            if [ -d "$dir" ]; then
+              export TF_PROJECT=$(basename "$dir")
+              echo "Running Terraform Plan for project: $TF_PROJECT"
+              /usr/local/bin/task tf/plan
+            fi
+          done
