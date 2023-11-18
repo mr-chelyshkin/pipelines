@@ -27,22 +27,15 @@ jobs:
         run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /usr/local/bin
 
       - name: Terraform Plan
-#        env:
-#          TF_VAR_BACKEND_BUCKET: ${{ secrets.TF_VAR_BACKEND_BUCKET }}
-#          TF_VAR_BACKEND_REGION: ${{ secrets.TF_VAR_BACKEND_REGION }}
-#          TF_VAR_BACKEND_FILE:   ${{ secrets.TF_VAR_BACKEND_FILE }}
-#
-#          TF_VAR_variables_bucket_name:   ${{ secrets.TF_VAR_variables_bucket_name }}
-#          TF_VAR_variables_bucket_file:   ${{ secrets.TF_VAR_variables_bucket_file }}
-#          TF_VAR_variables_bucket_region: ${{ secrets.TF_VAR_variables_bucket_region }}
+        env:
+          TF_VAR_BACKEND_BUCKET: ${{ secrets.TF_VAR_BACKEND_BUCKET }}
+          TF_VAR_BACKEND_REGION: ${{ secrets.TF_VAR_BACKEND_REGION }}
+          TF_VAR_BACKEND_FILE:   ${{ secrets.TF_VAR_BACKEND_FILE }}
+
+          TF_VAR_variables_bucket_name:   ${{ secrets.TF_VAR_variables_bucket_name }}
+          TF_VAR_variables_bucket_file:   ${{ secrets.TF_VAR_variables_bucket_file }}
+          TF_VAR_variables_bucket_region: ${{ secrets.TF_VAR_variables_bucket_region }}
+          TF_PROJECT: "netsurf"
         run: |
-          export TF_VAR_BACKEND_BUCKET="test"
-          export TF_VAR_BACKEND_REGION="test"
-          export TF_VAR_BACKEND_FILE="test"
-          
-          export TF_VAR_variables_bucket_name="test"
-          export TF_VAR_variables_bucket_file="test"
-          export TF_VAR_variables_bucket_region="test"
-          
           /usr/local/bin/task tf/install
           /usr/local/bin/task tf/plan
