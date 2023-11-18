@@ -36,5 +36,5 @@ jobs:
           TF_VAR_variables_bucket_file:   ${{ secrets.TF_VAR_variables_bucket_file }}
           TF_VAR_variables_bucket_region: ${{ secrets.TF_VAR_variables_bucket_region }}
         run: |
-          /tmp/task tf/check
+          /tmp/task tf/install
           /tmp/task tf/plan
