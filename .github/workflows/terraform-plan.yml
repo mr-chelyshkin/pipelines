@@ -24,9 +24,7 @@ jobs:
           aws-region: ${{ secrets.AWS_REGION }}
 
       - name: Install Task
-        run: |
-          curl -sL https://taskfile.dev/install.sh | sh
-          echo "$HOME/bin" >> $GITHUB_PATH
+        run: sh -c "$(curl --location https://taskfile.dev/install.sh)" -- -d -b /bin
 
       - name: Terraform Plan
         env:
