@@ -1,0 +1,111 @@
+version: 3
+
+vars:
+  git_root:
+    sh: git rev-parse --show-toplevel
+  tf_version: 1.6.4
+
+tasks:
+  default:
+    desc: Default task.
+    cmds:
+      - echo "Please enter a task or use -l or --list-all to list all available tasks"
+    silent: true
+
+  env/check/not_empty:
+    desc: Internal task for check environment variable (not empty).
+    cmds:
+      - |
+        if [ -z "${{ .ENV_VAR_NAME }}" ]; then
+          echo "Error: ${{ .ENV_VAR_NAME }} environment variable is not set."
+          exit 1
+        fi
+    silent: true
+    internal: true
+
+  env/check/project:
+    desc: Internal task for check that projects exist in provisioners.
+    cmds:
+      - task: env/check/not_empty
+        vars: { ENV_VAR_NAME: "TF_PROJECT" }
+      - |
+        if [ ! -d "./provisioners/${TF_PROJECT}" ]; then
+          echo "Error: 'TF_PROJECT' does not exist in ./provisioners/${TF_PROJECT}."
+          exit 1
+        fi
+    silent: true
+    internal: true
+
+  tffmt:
+    desc: Run terraform fmt on the code.
+    cmds:
+      - terraform fmt -recursive -check --diff {{ .git_root }} || { exit 1; };
+
+  tffmt/fix:
+    desc: Run terraform fmt on the code and auto fix fmt errors.
+    cmds:
+      - terraform fmt -recursive --diff --write=true
+
+  tf/install:
+    desc: Install terraform.
+    cmds:
+      - curl -sL https://releases.hashicorp.com/terraform/{{ .tf_version }}/terraform_{{ .tf_version }}_{{ OS }}_{{ ARCH }}.zip -o /tmp/terraform.zip
+      - sudo unzip -o /tmp/terraform.zip -d /usr/local/bin/
+      - sudo chmod a+x /usr/local/bin/terraform
+      - terraform version
+    sources:
+      - /usr/local/bin/terraform
+
+  tf/check:
+    desc: Check Terraform version and install if version didn't match.
+    cmds:
+      - |
+        if [ "$(terraform --version | head -n 1 | cut -d' ' -f 2 | tr -d 'v')" != "{{ .tf_version }}" ]; then
+          task tf/install
+        else
+          echo "Terraform is up to date (version {{ .tf_version }})."
+        fi
+    internal: true
+
+  tf/init:
+    desc: Run terraform init for ./provisioners/${TF_PROJECT}.
+    cmds:
+      - task: env/check/project
+      - task: env/check/not_empty
+        vars: { ENV_VAR_NAME: "TF_VAR_BACKEND_BUCKET" }
+      - task: env/check/not_empty
+        vars: { ENV_VAR_NAME: "TF_VAR_BACKEND_REGION" }
+      - task: env/check/not_empty
+        vars: { ENV_VAR_NAME: "TF_VAR_BACKEND_FILE" }
+      - task: env/check/not_empty
+        vars: { ENV_VAR_NAME: "TF_VAR_variables_bucket_name" }
+      - task: env/check/not_empty
+        vars: { ENV_VAR_NAME: "TF_VAR_variables_bucket_region" }
+      - task: env/check/not_empty
+        vars: { ENV_VAR_NAME: "TF_VAR_variables_bucket_file" }
+      - |
+        cd ./provisioners/${TF_PROJECT} && terraform init -reconfigure \
+          -backend-config="bucket=${TF_VAR_BACKEND_BUCKET}"            \
+          -backend-config="region=${TF_VAR_BACKEND_REGION}"            \
+          -backend-config="key=${TF_VAR_BACKEND_FILE}"
+
+  tf/plan:
+    desc: Run terraform plan for ./provisioners/${TF_PROJECT}.
+    deps:
+      - tf/init
+    cmds:
+      - cd ./provisioners/${TF_PROJECT} && terraform plan
+
+  tf/apply:
+    desc: Run terraform apply for ./provisioners/${TF_PROJECT}.
+    deps:
+      - tf/init
+    cmds:
+      - cd ./provisioners/${TF_PROJECT} && terraform apply -auto-approve
+
+  tf/destroy:
+    desc: Run terraform destroy for ./provisioners/${TF_PROJECT}.
+    deps:
+      - tf/init
+    cmds:
+      - cd ./provisioners/${TF_PROJECT} && terraform destroy -auto-approve

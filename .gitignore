@@ -1,0 +1,7 @@
+.task
+.idea
+
+/variables
+/provisioners/*/.env
+/provisioners/*/.terraform/
+/provisioners/*/.terraform.lock.hcl
