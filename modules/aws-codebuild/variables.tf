@@ -3,6 +3,11 @@ variable "name" {
   type        = string
 }
 
+variable "name_postfix" {
+  description = "CodeBuild project name postfix to indicate details."
+  type        = string
+}
+
 variable "description" {
   description = "CodeBuild project description."
   type        = string

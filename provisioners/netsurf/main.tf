@@ -18,9 +18,10 @@ data "terraform_remote_state" "variables" {
 module "codebuild" {
   source = "../../modules/aws-codebuild"
 
+  description       = "NetSerf binary, os: linux, arch: arm64, march: armv8-a"
   name              = "netsurf"
-  description       = "App for manage Wi-Fi from console"
-  build_image       = "aws/codebuild/amazonlinux2-x86_64-standard:4.0"
+  name_postfix      = "linux_armv8-a"
+  build_image       = "chelyshkin/netsurf-ci:latest"
   build_spec        = "./buildspec.yaml"
   artifacts_path    = ["./bin/netsurf"]
   artifacts_enabled = true
