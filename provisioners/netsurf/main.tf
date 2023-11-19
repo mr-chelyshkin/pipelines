@@ -21,7 +21,7 @@ module "codebuild" {
   description       = "NetSerf binary, os: linux, arch: arm64, march: armv8-a"
   name              = "netsurf"
   name_postfix      = "linux_armv8-a"
-  build_image       = "chelyshkin/netsurf-ci:latest"
+  build_image       = "chelyshkin/netsurf-ci:latest-arm64"
   build_spec        = "./buildspec.yaml"
   artifacts_path    = ["./bin/netsurf"]
   artifacts_enabled = true
