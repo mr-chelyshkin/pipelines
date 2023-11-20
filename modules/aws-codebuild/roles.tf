@@ -41,7 +41,7 @@ data "aws_iam_policy_document" "codebuild_policy" {
 }
 
 resource "aws_iam_role" "codebuild_role" {
-  name = "${var.name_prefix}-${var.name}-PipelinesCodeBuildRole"
+  name = "${var.name_prefix}-${var.name}-CodeBuildRole"
 
   assume_role_policy = jsonencode({
     Version = "2012-10-17",
@@ -59,7 +59,7 @@ resource "aws_iam_role" "codebuild_role" {
 
 resource "aws_iam_policy" "codebuild_policy" {
   count  = var.artifacts_bucket != null ? 1 : 0
-  name   = "${var.name_prefix}-${var.name}-PipelinesCodeBuildPolicy"
+  name   = "${var.name_prefix}-${var.name}-CodeBuildPolicy"
   policy = data.aws_iam_policy_document.codebuild_policy.json
 }
 
