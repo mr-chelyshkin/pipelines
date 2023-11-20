@@ -1,15 +1,10 @@
 resource "aws_codebuild_project" "codebuild" {
-  name           = "pipelines-${var.name}-${var.name_postfix}"
+  name           = "${var.name_prefix}-${var.name}-${var.name_postfix}"
   description    = var.description
   service_role   = aws_iam_role.codebuild_role.arn
   build_timeout  = var.build_timeout
   source_version = var.source_branch
-
-  tags = {
-    "definition" : "pipelines"
-    "source" : var.source_url
-    "project" : var.name
-  }
+  tags           = var.tags
 
   source {
     type            = "GITHUB"
@@ -19,27 +14,16 @@ resource "aws_codebuild_project" "codebuild" {
   }
 
   environment {
-    compute_type                = var.build_compute
-    image                       = var.build_image
-    type                        = "LINUX_CONTAINER"
-    image_pull_credentials_type = "CODEBUILD"
+    compute_type = var.build_compute
+    image        = "${var.image_hub.image}:${var.image_hub.tag}"
+    type         = var.arch == "arm64" ? "ARM_CONTAINER" : "LINUX_CONTAINER"
+
+    image_pull_credentials_type = var.image_hub.type == "ecr" ? "SERVICE_ROLE" : "CODEBUILD"
   }
 
-  dynamic "artifacts" {
-    for_each = var.artifacts_enabled ? var.artifacts_path : []
-    content {
-      type           = "S3"
-      location       = aws_s3_bucket.codebuild_artifacts[0].bucket
-      path           = dirname(artifacts.value)
-      name           = basename(artifacts.value)
-      namespace_type = "NONE"
-      packaging      = "ZIP"
-    }
-  }
-  dynamic "artifacts" {
-    for_each = var.artifacts_enabled ? [] : [1]
-    content {
-      type = "NO_ARTIFACTS"
-    }
+  artifacts {
+    type     = var.artifacts_bucket != null ? "S3" : "NO_ARTIFACTS"
+    location = var.artifacts_bucket != null ? var.artifacts_bucket.id : null
+    path     = var.artifacts_bucket != null ? var.artifacts_path : null
   }
 }
