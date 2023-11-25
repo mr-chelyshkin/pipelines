@@ -58,6 +58,7 @@ module "deb_armv8-a_glibc-2-31" {
     name : module.artifacts.bucket-name
   }
   image_hub = {
+    name : module.image-hub.ecr-name
     image : module.image-hub.ecr-url
     tag : "deb-glibc_2-31-13"
     type : "ecr"

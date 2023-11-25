@@ -123,6 +123,7 @@ variable "artifacts_bucket" {
 variable "image_hub" {
   description = "Information about the Docker image and its source."
   type = object({
+    name  = string
     image = string
     tag   = string
     type  = string
