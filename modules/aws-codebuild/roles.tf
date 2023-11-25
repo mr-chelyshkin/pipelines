@@ -30,11 +30,23 @@ data "aws_iam_policy_document" "codebuild_policy" {
       actions = [
         "ecr:GetDownloadUrlForLayer",
         "ecr:BatchGetImage",
-        "ecr:BatchCheckLayerAvailability",
-        "ecr:GetAuthorizationToken",
+        "ecr:BatchCheckLayerAvailability"
       ]
       resources = [
-        "arn:aws:ecr:${var.region}:*:repository/${var.image_hub.image}",
+        "arn:aws:ecr:${var.region}:*:repository/${var.image_hub.name}",
+      ]
+    }
+  }
+
+  dynamic "statement" {
+    for_each = var.image_hub.type == "ecr" ? [1] : []
+
+    content {
+      actions = [
+        "ecr:GetAuthorizationToken"
+      ]
+      resources = [
+        "*",
       ]
     }
   }

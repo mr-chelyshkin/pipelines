@@ -13,6 +13,15 @@ variable "name" {
   }
 }
 
+variable "credentials" {
+  description = "Source repository credentials"
+  type = object({
+    token       = string
+    useWebHooks = bool
+  })
+  default = null
+}
+
 variable "name_prefix" {
   description = "CodeBuild project name prefix to indicate details."
   type        = string
@@ -114,6 +123,7 @@ variable "artifacts_bucket" {
 variable "image_hub" {
   description = "Information about the Docker image and its source."
   type = object({
+    name  = string
     image = string
     tag   = string
     type  = string

@@ -47,12 +47,18 @@ module "deb_armv8-a_glibc-2-31" {
   source_url    = local.code_source
   source_branch = "main"
 
+  credentials = {
+    token : data.terraform_remote_state.variables.outputs.netsurf-github-pat
+    useWebHooks : true
+  }
+
   artifacts_bucket = {
     id : module.artifacts.bucket-id
     arn : module.artifacts.bucket-arn
     name : module.artifacts.bucket-name
   }
   image_hub = {
+    name : module.image-hub.ecr-name
     image : module.image-hub.ecr-url
     tag : "deb-glibc_2-31-13"
     type : "ecr"
