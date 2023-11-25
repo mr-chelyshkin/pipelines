@@ -11,6 +11,10 @@ resource "aws_codebuild_project" "codebuild" {
     location        = var.source_url
     buildspec       = var.build_spec
     git_clone_depth = 1
+
+    git_submodules_config {
+      fetch_submodules = false
+    }
   }
 
   environment {
@@ -27,3 +31,29 @@ resource "aws_codebuild_project" "codebuild" {
     path     = var.artifacts_bucket != null ? var.artifacts_path : null
   }
 }
+
+resource "aws_codebuild_source_credential" "source_credential" {
+  count       = var.credentials != null ? 1 : 0
+  auth_type   = "PERSONAL_ACCESS_TOKEN"
+  server_type = "GITHUB"
+  token       = var.credentials.token
+}
+
+resource "aws_codebuild_webhook" "codebuild_webhook" {
+  count        = var.credentials.useWebHooks ? 1 : 0
+  project_name = aws_codebuild_project.codebuild.name
+  build_type   = "BUILD"
+
+  filter_group {
+    filter {
+      type    = "EVENT"
+      pattern = "PUSH"
+    }
+
+    filter {
+      type    = "HEAD_REF"
+      pattern = "refs/tags/v[0-9]+\\.[0-9]+\\.[0-9]+$"
+    }
+  }
+}
+

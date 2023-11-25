@@ -13,6 +13,15 @@ variable "name" {
   }
 }
 
+variable "credentials" {
+  description = "Source repository credentials"
+  type = object({
+    token       = string
+    useWebHooks = bool
+  })
+  default = null
+}
+
 variable "name_prefix" {
   description = "CodeBuild project name prefix to indicate details."
   type        = string
