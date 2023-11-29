@@ -21,7 +21,12 @@ module "image-hub" {
   name         = local.name
   name_prefix  = local.prefix
   name_postfix = "ci_cd"
-  tags         = local.tags
+
+  tags = {
+    "definition" : local.prefix
+    "source" : local.code_source
+    "project" : local.name
+  }
 }
 
 module "artifacts" {
@@ -30,22 +35,49 @@ module "artifacts" {
   name         = local.name
   name_prefix  = local.prefix
   name_postfix = "artifacts"
-  tags         = local.tags
+
+  tags = {
+    "definition" : local.prefix
+    "source" : local.code_source
+    "project" : local.name
+  }
+}
+
+module "distribute" {
+  source = "../../modules/aws-cloudfront-dist"
+
+  name          = local.name
+  name_prefix   = local.prefix
+  bucket_domain = module.artifacts.bucket-domain
+  bucket_id     = module.artifacts.bucket-id
+  bucket_arn    = module.artifacts.bucket-arn
+
+  tags = {
+    "definition" : local.prefix
+    "source" : local.code_source
+    "project" : local.name
+  }
 }
 
 module "deb_armv8-a_glibc-2-31" {
   source = "../../modules/aws-codebuild"
 
-  name         = local.name
-  name_prefix  = local.prefix
-  name_postfix = "deb_armv8-a_glibc-2-31"
-  tags         = local.tags
-
-  arch          = "arm64"
-  description   = "[NetSurf]:linux-deb_arm64-armv8-a_glibc-2-31-13"
-  build_spec    = ".infra/build/linux_armv8-a/buildspec.yaml"
+  name          = local.name
+  name_prefix   = local.prefix
   source_url    = local.code_source
   source_branch = "main"
+  region        = data.terraform_remote_state.variables.outputs.aws-region
+
+  name_postfix = "deb_armv8-a_glibc-2-31"
+  arch         = "arm64"
+  description  = "[NetSurf]:linux-deb_arm64-armv8-a_glibc-2-31-13"
+  build_spec   = ".infra/build/linux_armv8-a/buildspec.yaml"
+
+  tags = {
+    "definition" : local.prefix
+    "source" : local.code_source
+    "project" : local.name
+  }
 
   credentials = {
     token : data.terraform_remote_state.variables.outputs.netsurf-github-pat
@@ -57,11 +89,11 @@ module "deb_armv8-a_glibc-2-31" {
     arn : module.artifacts.bucket-arn
     name : module.artifacts.bucket-name
   }
+
   image_hub = {
     name : module.image-hub.ecr-name
     image : module.image-hub.ecr-url
     tag : "deb-glibc_2-31-13"
     type : "ecr"
   }
-  region = data.terraform_remote_state.variables.outputs.aws-region
 }
