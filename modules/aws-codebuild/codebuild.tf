@@ -29,6 +29,9 @@ resource "aws_codebuild_project" "codebuild" {
     type     = var.artifacts_bucket != null ? "S3" : "NO_ARTIFACTS"
     location = var.artifacts_bucket != null ? var.artifacts_bucket.id : null
     path     = var.artifacts_bucket != null ? var.artifacts_path : null
+
+    // true as default, but encryption not working with CloudFront.
+    encryption_disabled = true
   }
 }
 
