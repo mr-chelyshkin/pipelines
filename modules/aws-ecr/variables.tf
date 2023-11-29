@@ -42,6 +42,6 @@ variable "scan_on_push" {
 
 variable "tags" {
   description = "ECR repository tags."
-  type        = object({})
+  type        = map(string)
   default     = {}
 }

@@ -21,12 +21,7 @@ module "image-hub" {
   name         = local.name
   name_prefix  = local.prefix
   name_postfix = "ci_cd"
-
-  tags = {
-    "definition" : local.prefix
-    "source" : local.code_source
-    "project" : local.name
-  }
+  tags         = local.tags
 }
 
 module "artifacts" {
@@ -35,12 +30,7 @@ module "artifacts" {
   name         = local.name
   name_prefix  = local.prefix
   name_postfix = "artifacts"
-
-  tags = {
-    "definition" : local.prefix
-    "source" : local.code_source
-    "project" : local.name
-  }
+  tags         = local.tags
 }
 
 module "distribute" {
@@ -51,12 +41,7 @@ module "distribute" {
   bucket_domain = module.artifacts.bucket-domain
   bucket_id     = module.artifacts.bucket-id
   bucket_arn    = module.artifacts.bucket-arn
-
-  tags = {
-    "definition" : local.prefix
-    "source" : local.code_source
-    "project" : local.name
-  }
+  tags          = local.tags
 }
 
 module "deb_armv8-a_glibc-2-31" {
@@ -72,12 +57,7 @@ module "deb_armv8-a_glibc-2-31" {
   arch         = "arm64"
   description  = "[NetSurf]:linux-deb_arm64-armv8-a_glibc-2-31-13"
   build_spec   = ".infra/build/linux_armv8-a/buildspec.yaml"
-
-  tags = {
-    "definition" : local.prefix
-    "source" : local.code_source
-    "project" : local.name
-  }
+  tags         = local.tags
 
   credentials = {
     token : data.terraform_remote_state.variables.outputs.netsurf-github-pat

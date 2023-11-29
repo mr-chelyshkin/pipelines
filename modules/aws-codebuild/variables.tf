@@ -59,7 +59,7 @@ variable "description" {
 
 variable "tags" {
   description = "CodeBuild tags."
-  type        = object({})
+  type        = map(string)
   default     = {}
 }
 

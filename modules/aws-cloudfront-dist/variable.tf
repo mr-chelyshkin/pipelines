@@ -35,6 +35,6 @@ variable "name_prefix" {
 
 variable "tags" {
   description = "CloudFront tags."
-  type        = object({})
+  type        = map(string)
   default     = {}
 }

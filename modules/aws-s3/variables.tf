@@ -30,6 +30,6 @@ variable "name_postfix" {
 
 variable "tags" {
   description = "S3 bucket tags."
-  type        = object({})
+  type        = map(string)
   default     = {}
 }
